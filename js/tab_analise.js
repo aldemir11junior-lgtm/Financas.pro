@@ -42,11 +42,11 @@ function renderAnalise() {
     const pct = (gastoCat / limite) * 100;
     if (pct >= 100) {
       const excedente = gastoCat - limite;
-      insights.push([0, `🔴 Estourou o limite de ${cat}`, `Você já gastou ${fmtBRL(gastoCat)} de um limite de ${fmtBRL(limite)} — ${fmtBRL(excedente)} acima do combinado (${pct.toFixed(0)}% do limite).`, '#c0392b']);
+      insights.push([0, `Estourou o limite de ${cat}`, `Você já gastou ${fmtBRL(gastoCat)} de um limite de ${fmtBRL(limite)} — ${fmtBRL(excedente)} acima do combinado (${pct.toFixed(0)}% do limite).`, '#c0392b']);
     } else if (pct >= 80) {
-      insights.push([1, `🟠 ${cat} perto do limite`, `Já foram usados ${pct.toFixed(0)}% do limite de ${cat} (${fmtBRL(gastoCat)} de ${fmtBRL(limite)}), e o mês ainda tem ${diasNoMes - diaAtual} dia(s) pela frente.`, '#f39c12']);
+      insights.push([1, ` ${cat} perto do limite`, `Já foram usados ${pct.toFixed(0)}% do limite de ${cat} (${fmtBRL(gastoCat)} de ${fmtBRL(limite)}), e o mês ainda tem ${diasNoMes - diaAtual} dia(s) pela frente.`, '#f39c12']);
     } else if (pct >= fracaoMesPassado * 100 + 25 && diaAtual <= 20) {
-      insights.push([2, `🟡 Ritmo acelerado em ${cat}`, `Já se passaram ${pct.toFixed(0)}% do limite de ${cat}, mas só ${(fracaoMesPassado * 100).toFixed(0)}% do mês. No ritmo atual, a categoria deve estourar antes do fim do mês.`, '#f1c40f']);
+      insights.push([2, `Ritmo acelerado em ${cat}`, `Já se passaram ${pct.toFixed(0)}% do limite de ${cat}, mas só ${(fracaoMesPassado * 100).toFixed(0)}% do mês. No ritmo atual, a categoria deve estourar antes do fim do mês.`, '#f1c40f']);
     }
   }
 
@@ -58,7 +58,7 @@ function renderAnalise() {
       const mediaDiaria = gastoCat / diaAtual;
       const projecaoFimMes = mediaDiaria * diasNoMes;
       if (projecaoFimMes > limite && gastoCat < limite) {
-        insights.push([1, `📈 Projeção de estouro em ${cat}`, `No ritmo atual (~${fmtBRL(mediaDiaria)}/dia), a projeção é fechar o mês em ${fmtBRL(projecaoFimMes)}, ${fmtBRL(projecaoFimMes - limite)} acima do limite de ${fmtBRL(limite)}.`, '#f39c12']);
+        insights.push([1, `Projeção de estouro em ${cat}`, `No ritmo atual (~${fmtBRL(mediaDiaria)}/dia), a projeção é fechar o mês em ${fmtBRL(projecaoFimMes)}, ${fmtBRL(projecaoFimMes - limite)} acima do limite de ${fmtBRL(limite)}.`, '#f39c12']);
       }
     }
   }
@@ -67,7 +67,7 @@ function renderAnalise() {
   const totalDespesasAtual = Object.values(gastoPorCatAtual).reduce((a, b) => a + b, 0);
   for (const [cat, val] of Object.entries(gastoPorCatAtual)) {
     if (!(cat in limites) && totalDespesasAtual > 0 && (val / totalDespesasAtual) >= 0.25) {
-      insights.push([2, `🔎 ${cat} concentra boa parte dos gastos`, `${cat} já representa ${((val / totalDespesasAtual) * 100).toFixed(0)}% de tudo que você gastou este mês (${fmtBRL(val)}), mas ainda não tem um limite definido no Planejamento.`, '#3498db']);
+      insights.push([2, ` ${cat} concentra boa parte dos gastos`, `${cat} já representa ${((val / totalDespesasAtual) * 100).toFixed(0)}% de tudo que você gastou este mês (${fmtBRL(val)}), mas ainda não tem um limite definido no Planejamento.`, '#3498db']);
     }
   }
 
@@ -77,7 +77,7 @@ function renderAnalise() {
     if (valAnt && valAnt > 0) {
       const valAntProporcional = valAnt * fracaoMesPassado;
       if (valAntProporcional > 0 && valAtual > valAntProporcional * 1.3 && valAtual > 100) {
-        insights.push([2, `📊 ${cat} subiu em relação ao mês passado`, `Até este ponto do mês, o gasto em ${cat} está ${(((valAtual / valAntProporcional) - 1) * 100).toFixed(0)}% maior do que no mesmo período do mês anterior.`, '#8e44ad']);
+        insights.push([2, ` ${cat} subiu em relação ao mês passado`, `Até este ponto do mês, o gasto em ${cat} está ${(((valAtual / valAntProporcional) - 1) * 100).toFixed(0)}% maior do que no mesmo período do mês anterior.`, '#8e44ad']);
       }
     }
   }
@@ -88,15 +88,15 @@ function renderAnalise() {
   if (metaTotal > 0) {
     const pctMeta = (saldoMesAtual / metaTotal) * 100;
     if (pctMeta >= 100) {
-      insights.push([3, '🎯 Meta de poupança/investimento batida', `Seu saldo atual do mês (${fmtBRL(saldoMesAtual)}) já cobre a meta combinada de ${fmtBRL(metaTotal)}. Bom trabalho!`, '#00704A']);
+      insights.push([3, 'Meta de poupança/investimento batida', `Seu saldo atual do mês (${fmtBRL(saldoMesAtual)}) já cobre a meta combinada de ${fmtBRL(metaTotal)}. Bom trabalho!`, '#00704A']);
     } else if (pctMeta < fracaoMesPassado * 100 - 20) {
-      insights.push([1, '🎯 Meta de poupança/investimento em risco', `Faltam ${fmtBRL(metaTotal - saldoMesAtual)} para bater a meta de ${fmtBRL(metaTotal)} deste mês, e o mês já está ${(fracaoMesPassado * 100).toFixed(0)}% concluído.`, '#c0392b']);
+      insights.push([1, 'Meta de poupança/investimento em risco', `Faltam ${fmtBRL(metaTotal - saldoMesAtual)} para bater a meta de ${fmtBRL(metaTotal)} deste mês, e o mês já está ${(fracaoMesPassado * 100).toFixed(0)}% concluído.`, '#c0392b']);
     }
   }
 
   // 6) Sem planejamento
   if (!Object.keys(limites).length && !(plano.eventos || []).length && !(plano.fixos_parcelas || []).length) {
-    insights.push([3, '🗓️ Nenhum planejamento cadastrado para este mês', 'Vá até a aba 🗓️ Planejamento e monte o orçamento do mês para receber alertas mais precisos aqui.', '#1a6645']);
+    insights.push([3, 'Nenhum planejamento cadastrado para este mês', 'Vá até a aba Planejamento e monte o orçamento do mês para receber alertas mais precisos aqui.', '#1a6645']);
   }
 
   insights.sort((a, b) => a[0] - b[0]);
@@ -107,10 +107,10 @@ function renderAnalise() {
   `;
 
   if (!insights.length) {
-    html += `<div class="alerta alerta-success">✅ Nenhum alerta no momento. Seus gastos estão dentro do esperado para este ponto do mês!</div>`;
+    html += `<div class="alerta alerta-success">Nenhum alerta no momento. Seus gastos estão dentro do esperado para este ponto do mês!</div>`;
   } else {
     const nomesMeses = MESES_NOMES_PL;
-    html += `<div style="font-size:0.78rem;color:var(--text-sub);margin-bottom:10px;">📅 Análise referente a ${nomesMeses[hoje.getMonth()]}/${hoje.getFullYear()} · dia ${diaAtual} de ${diasNoMes} (${(fracaoMesPassado * 100).toFixed(0)}% do mês) · ${insights.length} ponto(s) de atenção, do mais urgente ao menos urgente.</div>`;
+    html += `<div style="font-size:0.78rem;color:var(--text-sub);margin-bottom:10px;">Análise referente a ${nomesMeses[hoje.getMonth()]}/${hoje.getFullYear()} · dia ${diaAtual} de ${diasNoMes} (${(fracaoMesPassado * 100).toFixed(0)}% do mês) · ${insights.length} ponto(s) de atenção, do mais urgente ao menos urgente.</div>`;
     for (const [, titulo, detalhe, cor] of insights) {
       html += `<div class="insight-card" style="border-left-color:${cor};"><div class="titulo">${titulo}</div><div class="detalhe">${detalhe}</div></div>`;
     }
@@ -119,7 +119,7 @@ function renderAnalise() {
   html += `<div class="divider"></div>`;
 
   if (Object.keys(limites).length || Object.keys(gastoPorCatAtual).length) {
-    html += `<div class="section-title">📐 Planejado x Real por Categoria</div>`;
+    html += `<div class="section-title">Planejado x Real por Categoria</div>`;
     const catsGeral = [...new Set([...Object.keys(limites), ...Object.keys(gastoPorCatAtual)])].sort();
     for (const cat of catsGeral) {
       const limiteC = limites[cat] || 0;

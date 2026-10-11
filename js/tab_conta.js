@@ -7,19 +7,19 @@ function renderConta() {
     <div class="page-title">Minha <span>Conta</span></div>
     <div class="page-sub">Altere sua senha de acesso quando quiser.</div>
 
-    <div class="section-title">🔄 Atualizar Dados</div>
+    <div class="section-title">Atualizar Dados</div>
     <div class="caption">Se você lançou algo em outro aparelho (ou outra aba) e não está aparecendo aqui, use este botão para recarregar tudo direto do banco de dados, sem precisar sair e entrar de novo.</div>
     <div id="conta-msg-atualizar"></div>
-    <button class="btn btn-primary btn-block" id="conta-btn-atualizar">🔄 Atualizar Dados</button>
+    <button class="btn btn-primary btn-block" id="conta-btn-atualizar">Atualizar Dados</button>
 
     <div class="divider"></div>
 
-    <div class="section-title">🔑 Alterar Senha</div>
+    <div class="section-title">Alterar Senha</div>
     <div id="conta-msg-senha"></div>
-    <div class="field"><label>🔒 Senha atual</label><input type="password" id="conta-senha-atual"></div>
-    <div class="field"><label>🔒 Nova senha</label><input type="password" id="conta-senha-nova1"></div>
-    <div class="field"><label>🔒 Confirmar nova senha</label><input type="password" id="conta-senha-nova2"></div>
-    <button class="btn btn-primary btn-block" id="conta-btn-salvar-senha">💾 Salvar nova senha</button>
+    <div class="field"><label>Senha atual</label><input type="password" id="conta-senha-atual"></div>
+    <div class="field"><label>Nova senha</label><input type="password" id="conta-senha-nova1"></div>
+    <div class="field"><label>Confirmar nova senha</label><input type="password" id="conta-senha-nova2"></div>
+    <button class="btn btn-primary btn-block" id="conta-btn-salvar-senha">Salvar nova senha</button>
   `;
 
   qs('#conta-btn-atualizar').addEventListener('click', async () => {
@@ -34,11 +34,11 @@ function renderConta() {
       STATE.categoriasMap = categoriasMap;
       STATE.planejamentoMap = planejamentoMap;
       atualizarFooter();
-      qs('#conta-msg-atualizar').innerHTML = `<div class="alerta alerta-success">✅ Dados atualizados direto do banco de dados!</div>`;
+      qs('#conta-msg-atualizar').innerHTML = `<div class="alerta alerta-success">Dados atualizados direto do banco de dados!</div>`;
     } catch (e) {
-      qs('#conta-msg-atualizar').innerHTML = `<div class="alerta alerta-error">❌ Erro ao atualizar: ${escapeHtml(e.message)}</div>`;
+      qs('#conta-msg-atualizar').innerHTML = `<div class="alerta alerta-error">Erro ao atualizar: ${escapeHtml(e.message)}</div>`;
     } finally {
-      btn.disabled = false; btn.textContent = '🔄 Atualizar Dados';
+      btn.disabled = false; btn.textContent = 'Atualizar Dados';
     }
   });
 
@@ -62,13 +62,13 @@ function renderConta() {
         msgBox.innerHTML = `<div class="alerta alerta-error">Senha atual incorreta.</div>`;
       } else {
         await atualizarSenhaUsuario(STATE.username, n1);
-        msgBox.innerHTML = `<div class="alerta alerta-success">✅ Senha alterada com sucesso!</div>`;
+        msgBox.innerHTML = `<div class="alerta alerta-success">Senha alterada com sucesso!</div>`;
         qs('#conta-senha-atual').value = ''; qs('#conta-senha-nova1').value = ''; qs('#conta-senha-nova2').value = '';
       }
     } catch (e) {
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Erro ao alterar senha: ${escapeHtml(e.message)}</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-error">Erro ao alterar senha: ${escapeHtml(e.message)}</div>`;
     } finally {
-      btn.disabled = false; btn.textContent = '💾 Salvar nova senha';
+      btn.disabled = false; btn.textContent = 'Salvar nova senha';
     }
   });
 }

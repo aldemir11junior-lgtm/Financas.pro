@@ -54,17 +54,18 @@ function rowToLancamento(r) {
     id: r.id, data: r.data, valor: parseFloat(r.valor), descricao: r.descricao,
     categoria_extra: r.categoria_extra || '', forma_pagamento: r.forma_pagamento || 'Cartão',
     tipo: r.tipo, classe: r.classe, icone: r.icone || '',
-    apagadoEm: r.apagado_em || undefined,
+    recorrencia_id: r.recorrencia_id || '', parcela_numero: r.parcela_numero || null,
+    total_parcelas: r.total_parcelas || null, apagadoEm: r.apagado_em || undefined,
   };
 }
 async function loadData(usuario) {
   const { data: lancRows, error: e1 } = await sb.from('Orç_Lancamentos')
-    .select('id, data, valor, descricao, categoria_extra, forma_pagamento, tipo, classe, icone')
+    .select('id, data, valor, descricao, categoria_extra, forma_pagamento, tipo, classe, icone, recorrencia_id, parcela_numero, total_parcelas')
     .ilike('usuario', usuario).order('id', { ascending: false });
   checarErro(e1, 'Erro ao carregar lançamentos');
 
   const { data: lixRows, error: e2 } = await sb.from('Orç_Lixeira')
-    .select('id, data, valor, descricao, categoria_extra, forma_pagamento, tipo, classe, icone, apagado_em')
+    .select('id, data, valor, descricao, categoria_extra, forma_pagamento, tipo, classe, icone, recorrencia_id, parcela_numero, total_parcelas, apagado_em')
     .ilike('usuario', usuario).order('apagado_em', { ascending: false });
   checarErro(e2, 'Erro ao carregar lixeira');
 
@@ -78,6 +79,8 @@ async function inserirLancamento(usuario, l) {
     id: l.id, usuario, data: l.data, valor: l.valor, descricao: l.descricao,
     categoria_extra: l.categoria_extra || '', forma_pagamento: l.forma_pagamento || 'Cartão',
     tipo: l.tipo, classe: l.classe, icone: l.icone || '',
+    recorrencia_id: l.recorrencia_id || null, parcela_numero: l.parcela_numero || null,
+    total_parcelas: l.total_parcelas || null,
   });
   checarErro(error, 'Erro ao registrar lançamento');
 }
@@ -87,9 +90,11 @@ async function inserirLancamentosEmLote(usuario, lista) {
     id: l.id, usuario, data: l.data, valor: l.valor, descricao: l.descricao,
     categoria_extra: l.categoria_extra || '', forma_pagamento: l.forma_pagamento || 'Cartão',
     tipo: l.tipo, classe: l.classe, icone: l.icone || '',
+    recorrencia_id: l.recorrencia_id || null, parcela_numero: l.parcela_numero || null,
+    total_parcelas: l.total_parcelas || null,
   }));
   const { error } = await sb.from('Orç_Lancamentos').insert(rows);
-  checarErro(error, 'Erro ao importar lançamentos');
+  checarErro(error, 'Erro ao gravar lançamentos');
 }
 async function atualizarLancamento(id, usuario, campos) {
   const { error } = await sb.from('Orç_Lancamentos').update(campos).eq('id', id).ilike('usuario', usuario);
@@ -100,7 +105,9 @@ async function moverParaLixeira(usuario, l) {
   const { error: eIns } = await sb.from('Orç_Lixeira').insert({
     id: l.id, usuario, data: l.data, valor: l.valor, descricao: l.descricao,
     categoria_extra: l.categoria_extra || '', forma_pagamento: l.forma_pagamento || 'Cartão',
-    tipo: l.tipo, classe: l.classe, icone: l.icone || '', apagado_em: apagadoEm,
+    tipo: l.tipo, classe: l.classe, icone: l.icone || '',
+    recorrencia_id: l.recorrencia_id || null, parcela_numero: l.parcela_numero || null,
+    total_parcelas: l.total_parcelas || null, apagado_em: apagadoEm,
   });
   checarErro(eIns, 'Erro ao mover para a lixeira');
   const { error: eDel } = await sb.from('Orç_Lancamentos').delete().eq('id', l.id).ilike('usuario', usuario);
@@ -112,6 +119,8 @@ async function restaurarDaLixeira(usuario, l) {
     id: l.id, usuario, data: l.data, valor: l.valor, descricao: l.descricao,
     categoria_extra: l.categoria_extra || '', forma_pagamento: l.forma_pagamento || 'Cartão',
     tipo: l.tipo, classe: l.classe, icone: l.icone || '',
+    recorrencia_id: l.recorrencia_id || null, parcela_numero: l.parcela_numero || null,
+    total_parcelas: l.total_parcelas || null,
   });
   checarErro(eIns, 'Erro ao restaurar lançamento');
   const { error: eDel } = await sb.from('Orç_Lixeira').delete().eq('id', l.id).ilike('usuario', usuario);

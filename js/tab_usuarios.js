@@ -17,7 +17,7 @@ async function renderUsuarios() {
   try {
     usuarios = await loadUsers();
   } catch (e) {
-    qs('#usr-corpo').innerHTML = `<div class="alerta alerta-error">❌ Erro ao carregar usuários: ${escapeHtml(e.message)}</div>`;
+    qs('#usr-corpo').innerHTML = `<div class="alerta alerta-error">Erro ao carregar usuários: ${escapeHtml(e.message)}</div>`;
     return;
   }
   renderUsuariosCorpo(usuarios);
@@ -29,7 +29,7 @@ function renderUsuariosCorpo(usuarios) {
   const cadastrados = usuarios.filter(u => u.status !== 'pendente');
   const ativos = usuarios.filter(u => (u.status || 'aprovado') === 'aprovado');
 
-  let html = `<div class="section-title">⏳ Aguardando Aprovação</div>`;
+  let html = `<div class="section-title">Aguardando Aprovação</div>`;
   if (!pendentes.length) {
     html += `<div class="alerta alerta-info">Não há nenhuma solicitação de acesso pendente.</div>`;
   } else {
@@ -37,27 +37,27 @@ function renderUsuariosCorpo(usuarios) {
       html += `<div class="user-row" style="border-color:#f39c12;">
         <div class="user-ava" style="background:#f39c12;">${escapeHtml(u.usuario[0].toUpperCase())}</div>
         <div class="user-info"><div class="nome">${escapeHtml(u.usuario)}</div><div class="status" style="color:#d35400;">Aguardando liberação</div></div>
-        <button class="btn btn-primary btn-sm" data-aprovar="${escapeHtml(u.usuario)}">✓ Aprovar</button>
-        <button class="btn btn-sm" data-recusar="${escapeHtml(u.usuario)}">✕ Recusar</button>
+        <button class="btn btn-primary btn-sm" data-aprovar="${escapeHtml(u.usuario)}">Aprovar</button>
+        <button class="btn btn-sm" data-recusar="${escapeHtml(u.usuario)}">Recusar</button>
       </div>`;
     }
   }
 
-  html += `<div class="divider"></div><div class="section-title">👥 Usuários Cadastrados</div>
+  html += `<div class="divider"></div><div class="section-title">Usuários Cadastrados</div>
     <div class="caption">Use os botões para ativar ou desativar o acesso de cada usuário. Você não pode desativar sua própria conta.</div>`;
 
   for (const u of cadastrados) {
     const isAdminU = u.role === 'admin';
     const isMe = u.usuario.toLowerCase() === STATE.username.toLowerCase();
     const estaAtivo = (u.status || 'aprovado') === 'aprovado';
-    const roleLabel = isAdminU ? '👑 Administrador' : '👤 Usuário';
+    const roleLabel = isAdminU ? 'Administrador' : 'Usuário';
     const statusCor = estaAtivo ? 'var(--text-sub)' : '#c0392b';
-    const statusTxt = estaAtivo ? '✅ Ativo' : '🚫 Desativado';
+    const statusTxt = estaAtivo ? 'Ativo' : 'Desativado';
     const meTag = isMe ? ' <span style="font-size:10px;color:#00704A">(você)</span>' : '';
     let acao = '';
-    if (isMe) acao = `<button class="btn btn-sm" disabled>🔒 Você</button>`;
-    else if (estaAtivo) acao = `<button class="btn btn-sm" data-desativar="${escapeHtml(u.usuario)}">🚫 Desativar</button>`;
-    else acao = `<button class="btn btn-primary btn-sm" data-ativar="${escapeHtml(u.usuario)}">✅ Ativar</button>`;
+    if (isMe) acao = `<button class="btn btn-sm" disabled>Você</button>`;
+    else if (estaAtivo) acao = `<button class="btn btn-sm" data-desativar="${escapeHtml(u.usuario)}">Desativar</button>`;
+    else acao = `<button class="btn btn-primary btn-sm" data-ativar="${escapeHtml(u.usuario)}">Ativar</button>`;
 
     html += `<div class="user-row" style="${estaAtivo ? '' : 'background:#fdecea;border-color:#f5b7b1;'}">
       <div class="user-ava ${isAdminU ? 'user-ava-admin' : ''}" style="opacity:${estaAtivo ? 1 : 0.5};">${escapeHtml(u.usuario[0].toUpperCase())}</div>
@@ -66,7 +66,7 @@ function renderUsuariosCorpo(usuarios) {
     </div>`;
   }
 
-  html += `<div class="divider"></div><div class="section-title">🔑 Trocar Senha</div>
+  html += `<div class="divider"></div><div class="section-title">Trocar Senha</div>
     <div id="usr-msg-senha"></div>
     <div class="field" style="max-width:320px;"><label>Selecionar usuário</label>
       <select id="usr-sel-usuario">${ativos.map(u => `<option value="${escapeHtml(u.usuario)}">${escapeHtml(u.usuario)}</option>`).join('')}</select>
@@ -75,7 +75,7 @@ function renderUsuariosCorpo(usuarios) {
       <div class="field"><label>Nova senha</label><input type="password" id="usr-nova-senha"></div>
       <div class="field"><label>Confirmar senha</label><input type="password" id="usr-conf-senha"></div>
     </div>
-    <button class="btn btn-primary" id="usr-btn-salvar-senha">💾 Salvar nova senha</button>
+    <button class="btn btn-primary" id="usr-btn-salvar-senha">Salvar nova senha</button>
   `;
 
   box.innerHTML = html;
@@ -114,12 +114,12 @@ function renderUsuariosCorpo(usuarios) {
     btn.disabled = true; btn.textContent = 'Salvando...';
     try {
       await atualizarSenhaUsuario(sel, n1);
-      msgBox.innerHTML = `<div class="alerta alerta-success">✅ Senha de ${escapeHtml(sel)} alterada com sucesso!</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-success">Senha de ${escapeHtml(sel)} alterada com sucesso!</div>`;
       qs('#usr-nova-senha').value = ''; qs('#usr-conf-senha').value = '';
     } catch (e) {
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Erro: ${escapeHtml(e.message)}</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-error">Erro: ${escapeHtml(e.message)}</div>`;
     } finally {
-      btn.disabled = false; btn.textContent = '💾 Salvar nova senha';
+      btn.disabled = false; btn.textContent = 'Salvar nova senha';
     }
   });
 }

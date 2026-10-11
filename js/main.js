@@ -27,7 +27,7 @@ async function salvarLancamentosNoBanco() {
 function aplicarTema() {
   document.documentElement.setAttribute('data-theme', STATE.temaEscuro ? 'dark' : 'light');
   const btn = qs('#btn-tema');
-  if (btn) btn.textContent = STATE.temaEscuro ? '☀️ Claro' : '🌙 Escuro';
+  if (btn) btn.textContent = STATE.temaEscuro ? 'Tema claro' : 'Tema escuro';
 }
 
 function irParaPagina(pagina) {
@@ -51,7 +51,7 @@ function renderizarPagina(pagina) {
   } catch (e) {
     console.error(`Erro ao renderizar página ${pagina}:`, e);
     const alvo = qs('#page-' + pagina);
-    if (alvo) alvo.innerHTML = `<div class="alerta alerta-error">❌ Ocorreu um erro ao carregar esta aba: ${escapeHtml(e.message)}</div>`;
+    if (alvo) alvo.innerHTML = `<div class="alerta alerta-error">Ocorreu um erro ao carregar esta aba: ${escapeHtml(e.message)}</div>`;
   }
 }
 
@@ -79,7 +79,7 @@ function limparLixeiraAntiga() {
 async function iniciarApp() {
   qs('#tela-login').style.display = 'none';
   qs('#app').style.display = 'block';
-  qs('#top-user').innerHTML = `👤 <b>${escapeHtml(STATE.username)}</b>${STATE.isAdmin ? '  👑' : ''}`;
+  qs('#top-user').innerHTML = `<b>${escapeHtml(STATE.username)}</b>${STATE.isAdmin ? ' · Administrador' : ''}`;
   qs('#tab-btn-usuarios').style.display = STATE.isAdmin ? 'inline-block' : 'none';
   aplicarTema();
   irParaPagina('Dashboard');

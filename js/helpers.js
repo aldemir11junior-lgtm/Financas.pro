@@ -58,11 +58,9 @@ function badgeTipo(tipo) {
   return '<span class="badge badge-fixo">Despesa</span>';
 }
 const FORMAS_PAGAMENTO = ["Pix", "Dinheiro", "Cartão"];
-const ICONE_PAGAMENTO = { "Pix": "📱", "Dinheiro": "💵", "Cartão": "💳" };
 function badgePagamento(forma) {
   const cls = { "Pix": "pix", "Dinheiro": "dinheiro", "Cartão": "cartao" }[forma] || "cartao";
-  const icone = ICONE_PAGAMENTO[forma] || "💳";
-  return `<span class="badge badge-${cls}">${icone} ${escapeHtml(forma)}</span>`;
+  return `<span class="badge badge-${cls}">${escapeHtml(forma)}</span>`;
 }
 function escapeHtml(s) {
   return String(s ?? '').replace(/[&<>"']/g, c => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
@@ -109,18 +107,18 @@ function receitasPadrao() {
 
 // ─── CLASSIFICAÇÃO AUTOMÁTICA (usada na importação de Excel) ──────────────
 const REGRAS = [
-  { palavras:["salário","salario","pagamento","freelance","renda","receita","honorário","honorario","pró-labore","prolabore","dividendo"], tipo:"Receita", classe:"Receita", icone:"💵" },
-  { palavras:["aluguel","condomínio","condominio","iptu","financiamento","prestação casa"], tipo:"Fixo", classe:"Moradia", icone:"🏠" },
-  { palavras:["luz","energia","enel","cpfl","elektro","água","agua","saneamento","sabesp"], tipo:"Fixo", classe:"Moradia", icone:"🏠" },
-  { palavras:["internet","wi-fi","wifi","claro","vivo","tim","oi","net","telefone","celular","mensalidade"], tipo:"Fixo", classe:"Serviços", icone:"📡" },
-  { palavras:["netflix","amazon prime","disney","hbo","spotify","youtube premium"], tipo:"Fixo", classe:"Lazer", icone:"🎬" },
-  { palavras:["seguro","plano de saúde","plano saude","unimed","amil"], tipo:"Fixo", classe:"Saúde", icone:"🏥" },
-  { palavras:["supermercado","mercado","padaria","açougue","feira","ifood","rappi","delivery","restaurante","lanche","pizza","hamburguer","refeição","refeicao","almoço","almoco","jantar","café","cafe","comida"], tipo:"Variável", classe:"Alimentação", icone:"🍽️" },
-  { palavras:["uber","99","taxi","combustível","combustivel","gasolina","etanol","pedágio","pedagio","estacionamento","ônibus","onibus","metrô","metro"], tipo:"Variável", classe:"Transporte", icone:"🚗" },
-  { palavras:["farmácia","farmacia","remédio","remedio","médico","medico","consulta","exame","dentista","hospital","clínica","clinica"], tipo:"Variável", classe:"Saúde", icone:"💊" },
-  { palavras:["faculdade","escola","curso","mensalidade escola","livro","udemy","alura","coursera"], tipo:"Fixo", classe:"Educação", icone:"📚" },
-  { palavras:["cinema","teatro","show","ingresso","viagem","hotel","passeio","academia","jogo","game"], tipo:"Variável", classe:"Lazer", icone:"🎉" },
-  { palavras:["roupa","calçado","calcado","sapato","tênis","tenis","camisa","vestido","shopping"], tipo:"Variável", classe:"Vestuário", icone:"👗" },
+  { palavras:["salário","salario","pagamento","freelance","renda","receita","honorário","honorario","pró-labore","prolabore","dividendo"], tipo:"Receita", classe:"Receita" },
+  { palavras:["aluguel","condomínio","condominio","iptu","financiamento","prestação casa"], tipo:"Fixo", classe:"Moradia" },
+  { palavras:["luz","energia","enel","cpfl","elektro","água","agua","saneamento","sabesp"], tipo:"Fixo", classe:"Moradia" },
+  { palavras:["internet","wi-fi","wifi","claro","vivo","tim","oi","net","telefone","celular","mensalidade"], tipo:"Fixo", classe:"Serviços" },
+  { palavras:["netflix","amazon prime","disney","hbo","spotify","youtube premium"], tipo:"Fixo", classe:"Lazer" },
+  { palavras:["seguro","plano de saúde","plano saude","unimed","amil"], tipo:"Fixo", classe:"Saúde" },
+  { palavras:["supermercado","mercado","padaria","açougue","feira","ifood","rappi","delivery","restaurante","lanche","pizza","hamburguer","refeição","refeicao","almoço","almoco","jantar","café","cafe","comida"], tipo:"Variável", classe:"Alimentação" },
+  { palavras:["uber","99","taxi","combustível","combustivel","gasolina","etanol","pedágio","pedagio","estacionamento","ônibus","onibus","metrô","metro"], tipo:"Variável", classe:"Transporte" },
+  { palavras:["farmácia","farmacia","remédio","remedio","médico","medico","consulta","exame","dentista","hospital","clínica","clinica"], tipo:"Variável", classe:"Saúde" },
+  { palavras:["faculdade","escola","curso","mensalidade escola","livro","udemy","alura","coursera"], tipo:"Fixo", classe:"Educação" },
+  { palavras:["cinema","teatro","show","ingresso","viagem","hotel","passeio","academia","jogo","game"], tipo:"Variável", classe:"Lazer" },
+  { palavras:["roupa","calçado","calcado","sapato","tênis","tenis","camisa","vestido","shopping"], tipo:"Variável", classe:"Vestuário" },
 ];
 function removeAcentos(s) {
   return String(s).normalize("NFD").replace(/[̀-ͯ]/g, "");
@@ -129,10 +127,10 @@ function classificar(desc) {
   const d = removeAcentos(desc).toLowerCase();
   for (const r of REGRAS) {
     for (const p of r.palavras) {
-      if (d.includes(removeAcentos(p).toLowerCase())) return [r.tipo, r.classe, r.icone];
+      if (d.includes(removeAcentos(p).toLowerCase())) return [r.tipo, r.classe];
     }
   }
-  return ["Variável", "Outros", "📌"];
+  return ["Variável", "Outros"];
 }
 
 // ─── UTIL ──────────────────────────────────────────────────────────────

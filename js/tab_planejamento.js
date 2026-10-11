@@ -24,7 +24,7 @@ function renderPlanejamento() {
     <div class="page-sub">Monte o orçamento antes do mês começar: informe a renda prevista, os eventos e parcelas esperados, defina limites por categoria e metas de poupança/investimento — e veja a projeção antes mesmo de gastar um centavo.</div>
 
     <div class="form-row cols-2" style="max-width:520px;">
-      <div class="field"><label>🗓️ Mês de referência</label>
+      <div class="field"><label>Mês de referência</label>
         <select id="pl-mes-sel">${MESES_NOMES_PL.map((m, i) => `<option value="${i + 1}" ${i + 1 === PL_MES_SEL.mes ? 'selected' : ''}>${m}</option>`).join('')}</select>
       </div>
       <div class="field"><label>Ano</label>
@@ -64,9 +64,9 @@ function renderPlanejamentoCorpo() {
   const ehAtual = ano === hoje.getFullYear() && mes === hoje.getMonth() + 1;
 
   const avisoBox = qs('#pl-aviso-mes');
-  if (ehFuturo) avisoBox.innerHTML = `<div class="alerta alerta-success">🔮 Você está planejando um mês que <b>ainda não começou</b>. Perfeito — assim é possível se organizar com antecedência.</div>`;
-  else if (ehAtual) avisoBox.innerHTML = `<div class="alerta alerta-warning">📌 Você está ajustando o planejamento do mês <b>corrente</b>. A projeção abaixo já combina o que foi planejado com o que já foi de fato lançado.</div>`;
-  else avisoBox.innerHTML = `<div class="alerta alerta-info">🗂️ Você está revisando o planejamento de um mês passado.</div>`;
+  if (ehFuturo) avisoBox.innerHTML = `<div class="alerta alerta-success">Você está planejando um mês que <b>ainda não começou</b>. Perfeito — assim é possível se organizar com antecedência.</div>`;
+  else if (ehAtual) avisoBox.innerHTML = `<div class="alerta alerta-warning">Você está ajustando o planejamento do mês <b>corrente</b>. A projeção abaixo já combina o que foi planejado com o que já foi de fato lançado.</div>`;
+  else avisoBox.innerHTML = `<div class="alerta alerta-info">Você está revisando o planejamento de um mês passado.</div>`;
 
   const plano = getMesPlanejamento(chaveMes);
   PL_EVENTOS_ROWS = (plano.eventos || []).map(linhaEditorEvento);
@@ -77,40 +77,40 @@ function renderPlanejamentoCorpo() {
 
   const corpo = qs('#pl-corpo');
   corpo.innerHTML = `
-    <div class="section-title">💵 Renda Prevista</div>
+    <div class="section-title">Renda Prevista</div>
     <div class="field" style="max-width:280px;"><label>Quanto você espera receber neste mês?</label>
       <input type="number" min="0" step="50" id="pl-renda" value="${plano.renda_prevista || 0}">
     </div>
     <div class="divider"></div>
 
-    <div class="section-title">🎉 Eventos e Gastos Previstos</div>
+    <div class="section-title">Eventos e Gastos Previstos</div>
     <div class="caption">Coisas pontuais que você já sabe que vão acontecer nesse mês: uma viagem, um aniversário, uma compra planejada, um curso...</div>
     <div id="pl-eventos-editor"></div>
     <button class="btn btn-sm" id="pl-add-evento">+ Adicionar evento</button>
     <div class="divider"></div>
 
-    <div class="section-title">📌 Custos Fixos e Parcelas</div>
+    <div class="section-title">Custos Fixos e Parcelas</div>
     <div class="caption">Contas que se repetem (aluguel, internet, assinaturas) e parcelas em andamento (financiamentos, compras parceladas).</div>
     <div id="pl-fixos-editor"></div>
     <button class="btn btn-sm" id="pl-add-fixo">+ Adicionar fixo/parcela</button>
     <div class="divider"></div>
 
-    <div class="section-title">🚧 Limites de Gastos por Categoria</div>
-    <div class="caption">Defina até quanto você quer gastar em cada categoria. A aba 🔎 Análise e Insights vai te avisar quando estiver perto de estourar.</div>
+    <div class="section-title">Limites de Gastos por Categoria</div>
+    <div class="caption">Defina até quanto você quer gastar em cada categoria. A aba  Análise e Insights vai te avisar quando estiver perto de estourar.</div>
     <div id="pl-limites-editor"></div>
     <button class="btn btn-sm" id="pl-add-limite">+ Adicionar limite</button>
     <div class="divider"></div>
 
-    <div class="section-title">🐷 Metas de Poupança e Investimento</div>
+    <div class="section-title">Metas de Poupança e Investimento</div>
     <div class="form-row cols-2">
-      <div class="field"><label>💰 Meta de poupança do mês (R$)</label><input type="number" min="0" step="50" id="pl-meta-poupanca" value="${plano.meta_poupanca || 0}"></div>
-      <div class="field"><label>📈 Meta de investimento do mês (R$)</label><input type="number" min="0" step="50" id="pl-meta-invest" value="${plano.meta_investimento || 0}"></div>
+      <div class="field"><label>Meta de poupança do mês (R$)</label><input type="number" min="0" step="50" id="pl-meta-poupanca" value="${plano.meta_poupanca || 0}"></div>
+      <div class="field"><label>Meta de investimento do mês (R$)</label><input type="number" min="0" step="50" id="pl-meta-invest" value="${plano.meta_investimento || 0}"></div>
     </div>
 
-    <button class="btn btn-primary btn-block" id="pl-salvar">💾 Salvar Planejamento do Mês</button>
+    <button class="btn btn-primary btn-block" id="pl-salvar">Salvar Planejamento do Mês</button>
 
     <div class="divider"></div>
-    <div class="section-title">📊 Projeção de Gastos por Categoria</div>
+    <div class="section-title">Projeção de Gastos por Categoria</div>
     <div id="pl-projecao"></div>
   `;
 
@@ -160,7 +160,7 @@ function renderEditorTabela(containerId, rows, colunas) {
         html += `<td><input type="text" data-campo="${c.campo}" value="${escapeHtml(row[c.campo])}"></td>`;
       }
     }
-    html += `<td class="col-del"><button class="btn btn-sm btn-danger" data-del="${i}">✕</button></td></tr>`;
+    html += `<td class="col-del"><button class="btn btn-sm btn-danger" data-del="${i}" aria-label="Remover linha">Remover</button></td></tr>`;
   });
   html += `</tbody></table>`;
   if (!rows.length) html += `<div class="caption">Nenhuma linha adicionada ainda.</div>`;
@@ -201,13 +201,13 @@ async function salvarPlanejamentoAtual(chaveMes, mes, ano) {
     await salvarPlanejamentoMes(STATE.username, chaveMes, plano);
     STATE.planejamentoMap[chaveMes] = plano;
 
-    qs('#pl-msg').innerHTML = `<div class="alerta alerta-success">✅ Planejamento de ${MESES_NOMES_PL[mes - 1]}/${ano} salvo com sucesso! (${eventosNovos.length} evento(s), ${fixosNovos.length} fixo(s)/parcela(s), ${Object.keys(limitesNovos).length} limite(s) de categoria)</div>`;
+    qs('#pl-msg').innerHTML = `<div class="alerta alerta-success">Planejamento de ${MESES_NOMES_PL[mes - 1]}/${ano} salvo com sucesso! (${eventosNovos.length} evento(s), ${fixosNovos.length} fixo(s)/parcela(s), ${Object.keys(limitesNovos).length} limite(s) de categoria)</div>`;
     renderProjecaoPlanejamento(plano, ano, mes);
   } catch (e) {
     console.error(e);
-    qs('#pl-msg').innerHTML = `<div class="alerta alerta-error">❌ Erro ao salvar o planejamento: ${escapeHtml(e.message)}</div>`;
+    qs('#pl-msg').innerHTML = `<div class="alerta alerta-error">Erro ao salvar o planejamento: ${escapeHtml(e.message)}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = '💾 Salvar Planejamento do Mês';
+    btn.disabled = false; btn.textContent = 'Salvar Planejamento do Mês';
   }
 }
 
@@ -251,10 +251,10 @@ function renderProjecaoPlanejamento(plano, ano, mes) {
   const metaTotal = (plano.meta_poupanca || 0) + (plano.meta_investimento || 0);
   if (metaTotal > 0) {
     if (saldoProj >= metaTotal) {
-      extra += `<div class="alerta alerta-success" style="margin-top:10px;">🎉 Pelo planejado, sobra o suficiente para bater suas metas de poupança e investimento (${fmtBRL(metaTotal)})!</div>`;
+      extra += `<div class="alerta alerta-success" style="margin-top:10px;">Pelo planejado, sobra o suficiente para bater suas metas de poupança e investimento (${fmtBRL(metaTotal)})!</div>`;
     } else {
       const falta = metaTotal - saldoProj;
-      extra += `<div class="alerta alerta-warning" style="margin-top:10px;">⚠️ Do jeito que está planejado, ainda faltam ${fmtBRL(falta)} para alcançar suas metas de poupança + investimento neste mês.</div>`;
+      extra += `<div class="alerta alerta-warning" style="margin-top:10px;">Do jeito que está planejado, ainda faltam ${fmtBRL(falta)} para alcançar suas metas de poupança + investimento neste mês.</div>`;
     }
   }
 

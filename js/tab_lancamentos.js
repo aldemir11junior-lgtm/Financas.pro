@@ -11,8 +11,8 @@ function renderLancamentos() {
     <div class="page-sub">Informe data e valor, e escolha a Categoria (visão macro) e a Descrição (detalhe).</div>
 
     <div class="login-abas" style="max-width:420px;">
-      <button class="login-aba-btn ${LANC_SUBABA === 'manual' ? 'active' : ''}" data-sub="manual">✏️ Lançamento Manual</button>
-      <button class="login-aba-btn ${LANC_SUBABA === 'excel' ? 'active' : ''}" data-sub="excel">📂 Importar Excel</button>
+      <button class="login-aba-btn ${LANC_SUBABA === 'manual' ? 'active' : ''}" data-sub="manual">Lançamento Manual</button>
+      <button class="login-aba-btn ${LANC_SUBABA === 'excel' ? 'active' : ''}" data-sub="excel">Importar Excel</button>
     </div>
     <div id="lanc-corpo"></div>
   `;
@@ -22,28 +22,46 @@ function renderLancamentos() {
   else renderImportarExcel();
 }
 
+function dataParcelaMensal(dataInicial, mesesDepois) {
+  const [ano, mes, dia] = dataInicial.split('-').map(Number);
+  const dataAlvo = new Date(ano, mes - 1 + mesesDepois, 1);
+  const ultimoDia = new Date(dataAlvo.getFullYear(), dataAlvo.getMonth() + 1, 0).getDate();
+  dataAlvo.setDate(Math.min(dia, ultimoDia));
+  return dataISO(dataAlvo);
+}
+
 // ── Lançamento Manual ──────────────────────────────────────────────────
 function renderLancamentoManual() {
   const box = qs('#lanc-corpo');
   box.innerHTML = `
     <div id="ml-msg"></div>
     <div class="form-row cols-2">
-      <div class="field"><label>📅 Data</label><input type="date" id="ml-data" value="${dataISO(hojeBr())}"></div>
-      <div class="field"><label>💰 Valor (R$)</label><input type="number" id="ml-valor" min="0.01" step="0.01"></div>
+      <div class="field"><label>Data</label><input type="date" id="ml-data" value="${dataISO(hojeBr())}"></div>
+      <div class="field"><label>Valor (R$)</label><input type="number" id="ml-valor" min="0.01" step="0.01"></div>
     </div>
     <div class="form-row cols-2">
       <div class="field"><label>Tipo</label>
         <div class="radio-group">
-          <label><input type="radio" name="ml-tipo" value="Receita" checked> 💵 Receita</label>
-          <label><input type="radio" name="ml-tipo" value="Despesa"> 💸 Despesa</label>
+          <label><input type="radio" name="ml-tipo" value="Receita" checked>  Receita</label>
+          <label><input type="radio" name="ml-tipo" value="Despesa">  Despesa</label>
         </div>
       </div>
-      <div class="field"><label>💳 Forma de Pagamento</label>
+      <div class="field"><label>Forma de Pagamento</label>
         <select id="ml-forma">${FORMAS_PAGAMENTO.map(f => `<option value="${f}">${f}</option>`).join('')}</select>
       </div>
     </div>
+    <div id="ml-recorrencia-area" style="display:none">
+      <div class="field">
+        <label class="radio-group"><input type="checkbox" id="ml-parcelado"> Parcelar esta despesa</label>
+      </div>
+      <div class="field" id="ml-parcelas-area" style="display:none;max-width:260px">
+        <label for="ml-parcelas">Quantidade de parcelas</label>
+        <input type="number" id="ml-parcelas" min="2" max="600" step="1" value="2">
+      </div>
+      <div class="caption">Será criado um lançamento por mês, com o valor informado para cada parcela.</div>
+    </div>
     <div class="form-row cols-2" id="ml-cat-desc"></div>
-    <button class="btn btn-primary btn-block" id="ml-submit">✦ Registrar Lançamento</button>
+    <button class="btn btn-primary btn-block" id="ml-submit">Registrar Lançamento</button>
   `;
 
   const atualizarCatDesc = () => {
@@ -52,12 +70,12 @@ function renderLancamentoManual() {
     const catOpts = categoriasDisponiveis(tipoChave);
     const catBox = qs('#ml-cat-desc');
     if (!catOpts.length) {
-      catBox.innerHTML = `<div class="alerta alerta-warning">⚠️ Nenhuma categoria de ${tipoFinal} cadastrada ainda. Peça ao administrador para cadastrar as categorias diretamente no banco de dados.</div>`;
+      catBox.innerHTML = `<div class="alerta alerta-warning">Nenhuma categoria de ${tipoFinal} cadastrada ainda. Peça ao administrador para cadastrar as categorias diretamente no banco de dados.</div>`;
       return;
     }
     catBox.innerHTML = `
-      <div class="field"><label>🏷️ Categoria</label><select id="ml-categoria">${catOpts.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select></div>
-      <div class="field"><label>📝 Descrição</label><select id="ml-descricao"></select></div>
+      <div class="field"><label>Categoria</label><select id="ml-categoria">${catOpts.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select></div>
+      <div class="field"><label>Descrição</label><select id="ml-descricao"></select></div>
     `;
     const atualizarDesc = () => {
       const cat = qs('#ml-categoria').value;
@@ -74,7 +92,17 @@ function renderLancamentoManual() {
     qs('#ml-categoria').addEventListener('change', atualizarDesc);
     atualizarDesc();
   };
+  const atualizarParcelamento = () => {
+    const ehDespesa = qs('input[name="ml-tipo"]:checked').value === 'Despesa';
+    const area = qs('#ml-recorrencia-area');
+    area.style.display = ehDespesa ? 'block' : 'none';
+    if (!ehDespesa) qs('#ml-parcelado').checked = false;
+    qs('#ml-parcelas-area').style.display = ehDespesa && qs('#ml-parcelado').checked ? 'block' : 'none';
+  };
+  qs('#ml-parcelado').addEventListener('change', atualizarParcelamento);
   qsa('input[name="ml-tipo"]').forEach(r => r.addEventListener('change', atualizarCatDesc));
+  qsa('input[name="ml-tipo"]').forEach(r => r.addEventListener('change', atualizarParcelamento));
+  atualizarParcelamento();
   atualizarCatDesc();
 
   qs('#ml-submit').addEventListener('click', async () => {
@@ -85,33 +113,55 @@ function renderLancamentoManual() {
     const valor = parseFloat(qs('#ml-valor').value);
     const data = qs('#ml-data').value;
     const forma = qs('#ml-forma').value;
+    const parcelado = tipoFinal === 'Despesa' && qs('#ml-parcelado').checked;
+    const totalParcelas = parcelado ? Number(qs('#ml-parcelas').value) : 1;
 
     if (!categoriaSel || !descSel || !categoriaSel.value || !descSel.value) {
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Não foi possível registrar: selecione uma Categoria e uma Descrição válidas.</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-error">Não foi possível registrar: selecione uma Categoria e uma Descrição válidas.</div>`;
       return;
     }
-    if (!valor || valor <= 0) {
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Não foi possível registrar: informe um valor maior que zero.</div>`;
+    if (!Number.isFinite(valor) || valor <= 0) {
+      msgBox.innerHTML = `<div class="alerta alerta-error">Não foi possível registrar: informe um valor maior que zero.</div>`;
+      return;
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || dataISO(parseISO(data)) !== data) {
+      msgBox.innerHTML = `<div class="alerta alerta-error">Informe uma data válida para o lançamento.</div>`;
+      return;
+    }
+    if (parcelado && (!Number.isInteger(totalParcelas) || totalParcelas < 2 || totalParcelas > 600)) {
+      msgBox.innerHTML = `<div class="alerta alerta-error">Informe uma quantidade de parcelas entre 2 e 600.</div>`;
       return;
     }
     const btn = qs('#ml-submit');
-    btn.disabled = true; btn.textContent = 'Registrando...';
+    btn.disabled = true; btn.textContent = parcelado ? 'Registrando parcelas...' : 'Registrando...';
     try {
-      const iconeFinal = tipoFinal === 'Receita' ? '💵' : '💸';
-      const novo = {
-        id: novoIdLancamento(), data, valor, descricao: descSel.value, categoria_extra: '',
-        forma_pagamento: forma, tipo: tipoFinal, classe: categoriaSel.value, icone: iconeFinal,
-      };
-      await inserirLancamento(STATE.username, novo);
-      STATE.lancamentos.unshift(novo);
+      const recorrenciaId = parcelado ? crypto.randomUUID() : '';
+      const novos = Array.from({ length: totalParcelas }, (_, indice) => ({
+        id: novoIdLancamento() + indice,
+        data: dataParcelaMensal(data, indice),
+        valor,
+        descricao: descSel.value,
+        categoria_extra: '',
+        forma_pagamento: forma,
+        tipo: tipoFinal,
+        classe: categoriaSel.value,
+        recorrencia_id: recorrenciaId,
+        parcela_numero: parcelado ? indice + 1 : null,
+        total_parcelas: parcelado ? totalParcelas : null,
+      }));
+      await inserirLancamentosEmLote(STATE.username, novos);
+      STATE.lancamentos.unshift(...novos);
       atualizarFooter();
-      msgBox.innerHTML = `<div class="alerta alerta-success">✅ Registrado com sucesso: ${iconeFinal} ${escapeHtml(categoriaSel.value)} · ${escapeHtml(descSel.value)} — ${fmtBRL(valor)}</div>`;
+      const resumoParcelas = parcelado ? ` em ${totalParcelas} parcelas mensais de ${fmtBRL(valor)}` : '';
+      msgBox.innerHTML = `<div class="alerta alerta-success">${parcelado ? `${totalParcelas} parcelas registradas` : 'Lançamento registrado com sucesso'}: ${escapeHtml(categoriaSel.value)} · ${escapeHtml(descSel.value)}${resumoParcelas}</div>`;
       qs('#ml-valor').value = '';
+      qs('#ml-parcelado').checked = false;
+      atualizarParcelamento();
     } catch (e) {
       console.error(e);
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Erro ao registrar o lançamento: ${escapeHtml(e.message)}</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-error">Erro ao registrar o lançamento: ${escapeHtml(e.message)}</div>`;
     } finally {
-      btn.disabled = false; btn.textContent = '✦ Registrar Lançamento';
+      btn.disabled = false; btn.textContent = 'Registrar Lançamento';
     }
   });
 }
@@ -156,24 +206,24 @@ function parseDataPlanilha(v) {
 function renderImportarExcel() {
   const box = qs('#lanc-corpo');
   box.innerHTML = `
-    <div class="section-title">📂 Importar planilha Excel</div>
+    <div class="section-title">Importar planilha Excel</div>
     <div class="caption">Envie um arquivo <b>.xlsx</b> ou <b>.xls</b>. O sistema tentará identificar automaticamente as colunas de <b>data</b>, <b>valor</b> e <b>descrição</b>. Linhas não identificadas serão listadas para preenchimento manual.</div>
 
     <div class="form-row cols-2">
       <div class="field"><label>O que você está importando?</label>
         <div class="radio-group">
-          <label><input type="radio" name="imp-tipo" value="receita" checked> 💰 Receitas</label>
-          <label><input type="radio" name="imp-tipo" value="despesa"> 💸 Despesas</label>
+          <label><input type="radio" name="imp-tipo" value="receita" checked>  Receitas</label>
+          <label><input type="radio" name="imp-tipo" value="despesa">  Despesas</label>
         </div>
       </div>
-      <div class="field"><label>💳 Forma de Pagamento (aplicada a todas as linhas)</label>
+      <div class="field"><label>Forma de Pagamento (aplicada a todas as linhas)</label>
         <select id="imp-forma">${FORMAS_PAGAMENTO.map(f => `<option value="${f}">${f}</option>`).join('')}</select>
       </div>
     </div>
 
     <div class="upload-box" id="imp-upload-box">
       <input type="file" id="imp-arquivo" accept=".xlsx,.xls" style="display:none">
-      <div>📂 Clique para selecionar o arquivo Excel</div>
+      <div>Clique para selecionar o arquivo Excel</div>
     </div>
     <div id="imp-resultado"></div>
   `;
@@ -191,13 +241,13 @@ function processarArquivoExcel(e) {
       const ws = wb.Sheets[wb.SheetNames[0]];
       const linhas = XLSX.utils.sheet_to_json(ws, { defval: null });
       if (!linhas.length) {
-        qs('#imp-resultado').innerHTML = `<div class="alerta alerta-error">❌ A planilha está vazia.</div>`;
+        qs('#imp-resultado').innerHTML = `<div class="alerta alerta-error">A planilha está vazia.</div>`;
         return;
       }
       montarRevisaoExcel(linhas);
     } catch (err) {
       console.error(err);
-      qs('#imp-resultado').innerHTML = `<div class="alerta alerta-error">❌ Erro ao ler o arquivo: ${escapeHtml(err.message)}</div>`;
+      qs('#imp-resultado').innerHTML = `<div class="alerta alerta-error">Erro ao ler o arquivo: ${escapeHtml(err.message)}</div>`;
     }
   };
   reader.readAsArrayBuffer(file);
@@ -211,17 +261,17 @@ function montarRevisaoExcel(linhas) {
 
   const resultBox = qs('#imp-resultado');
   resultBox.innerHTML = `
-    <div style="font-size:0.75rem;color:var(--text-sub);margin:10px 0;">📄 ${linhas.length} linhas encontradas · Colunas: ${colunas.join(', ')}</div>
-    <div style="font-size:0.78rem;color:var(--text-sub);margin:6px 0 4px;">📌 Colunas detectadas automaticamente. Ajuste abaixo se algo estiver errado:</div>
+    <div style="font-size:0.75rem;color:var(--text-sub);margin:10px 0;"> ${linhas.length} linhas encontradas · Colunas: ${colunas.join(', ')}</div>
+    <div style="font-size:0.78rem;color:var(--text-sub);margin:6px 0 4px;">Colunas detectadas automaticamente. Ajuste abaixo se algo estiver errado:</div>
     <div class="form-row cols-3">
-      <div class="field"><label>📅 Coluna de Data</label><select id="imp-col-data">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colData ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
-      <div class="field"><label>💰 Coluna de Valor</label><select id="imp-col-valor">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colValor ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
-      <div class="field"><label>📝 Coluna de Descrição</label><select id="imp-col-desc">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colDesc ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
+      <div class="field"><label>Coluna de Data</label><select id="imp-col-data">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colData ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
+      <div class="field"><label>Coluna de Valor</label><select id="imp-col-valor">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colValor ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
+      <div class="field"><label>Coluna de Descrição</label><select id="imp-col-desc">${colunas.map(c => `<option value="${escapeHtml(c)}" ${c === colDesc ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
     </div>
     <div class="field" id="imp-cat-extra-check-box" style="display:none;">
       <label><input type="checkbox" id="imp-usar-cat-extra"> Usar uma coluna como Categoria (ex: Alimentação) para segmentar os gastos depois</label>
     </div>
-    <div class="field" id="imp-col-cat-extra-box" style="display:none;"><label>🏷️ Coluna que representa a Categoria</label><select id="imp-col-cat-extra">${colunas.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select></div>
+    <div class="field" id="imp-col-cat-extra-box" style="display:none;"><label>Coluna que representa a Categoria</label><select id="imp-col-cat-extra">${colunas.map(c => `<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('')}</select></div>
     <div id="imp-linhas"></div>
   `;
 
@@ -277,10 +327,10 @@ function recalcularLinhasExcel(linhas) {
 }
 
 function classificarParaImportacao(desc, ehReceita) {
-  if (ehReceita) return ['Receita', 'Receita', '💵'];
-  let [tipo, cls, icone] = classificar(desc);
-  if (tipo === 'Receita') return ['Variável', 'Outros', '📌'];
-  return [tipo, cls, icone];
+  if (ehReceita) return ['Receita', 'Receita'];
+  const [tipo, cls] = classificar(desc);
+  if (tipo === 'Receita') return ['Variável', 'Outros'];
+  return [tipo, cls];
 }
 
 function renderLinhasExcel() {
@@ -289,13 +339,13 @@ function renderLinhasExcel() {
   let html = '';
 
   if (linhasOk.length) {
-    html += `<div class="section-title">✅ ${linhasOk.length} linha(s) prontas para importar</div>`;
+    html += `<div class="section-title"> ${linhasOk.length} linha(s) prontas para importar</div>`;
     for (const item of linhasOk.slice(0, 5)) {
-      const [tipoP, clsP, icoP] = classificarParaImportacao(item.desc, ehReceita);
-      const catTag = item.catExtra ? ` · 🏷️ ${escapeHtml(item.catExtra)}` : '';
+      const [tipoP, clsP] = classificarParaImportacao(item.desc, ehReceita);
+      const catTag = item.catExtra ? ` ·  ${escapeHtml(item.catExtra)}` : '';
       html += `<div class="excel-row excel-row-ok">
         <span style="font-size:0.72rem;color:var(--text-sub);">${item.data.toLocaleDateString('pt-BR')} · ${badgeTipo(tipoP)} ${badgeClasse(clsP)}${catTag}</span><br>
-        <span style="font-size:0.9rem;font-weight:600;">${icoP} ${escapeHtml(item.desc)}</span>
+        <span style="font-size:0.9rem;font-weight:600;">${escapeHtml(item.desc)}</span>
         <span class="valor-float">${fmtBRL(item.valor)}</span>
       </div>`;
     }
@@ -303,16 +353,16 @@ function renderLinhasExcel() {
   }
 
   if (linhasRev.length) {
-    html += `<div class="section-title">⚠️ ${linhasRev.length} linha(s) precisam de revisão</div>
-      <div style="font-size:0.78rem;color:#c05e00;margin-bottom:10px;">Preencha apenas os campos com ⚠️ que não puderam ser identificados automaticamente.</div>`;
+    html += `<div class="section-title"> ${linhasRev.length} linha(s) precisam de revisão</div>
+      <div style="font-size:0.78rem;color:#c05e00;margin-bottom:10px;">Preencha apenas os campos com  que não puderam ser identificados automaticamente.</div>`;
     for (const item of linhasRev) {
       const titulo = item.sVal ? item.sVal.slice(0, 40) : `Linha ${item.idx + 1} (sem descrição)`;
       html += `<div class="expander"><div class="expander-head">Linha ${item.idx + 1} — ${escapeHtml(titulo)}</div>
         <div class="expander-body">
           <div class="form-row cols-3">
-            <div class="field"><label>📅 Data${item.dOk ? '' : ' ⚠️'}</label><input type="date" data-rev="data" data-idx="${item.idx}" value="${item.dOk ? dataISO(item.dVal) : dataISO(hojeBr())}" ${item.dOk ? 'disabled' : ''}></div>
-            <div class="field"><label>💰 Valor${item.vOk ? '' : ' ⚠️'}</label><input type="number" min="0.01" step="0.01" data-rev="valor" data-idx="${item.idx}" value="${item.vOk ? item.vVal : 0.01}" ${item.vOk ? 'disabled' : ''}></div>
-            <div class="field"><label>📝 Descrição${item.sOk ? '' : ' ⚠️'}</label><input type="text" data-rev="desc" data-idx="${item.idx}" value="${escapeHtml(item.sVal || '')}" ${item.sOk ? 'disabled' : ''}></div>
+            <div class="field"><label>Data${item.dOk ? '' : ' '}</label><input type="date" data-rev="data" data-idx="${item.idx}" value="${item.dOk ? dataISO(item.dVal) : dataISO(hojeBr())}" ${item.dOk ? 'disabled' : ''}></div>
+            <div class="field"><label>Valor${item.vOk ? '' : ' '}</label><input type="number" min="0.01" step="0.01" data-rev="valor" data-idx="${item.idx}" value="${item.vOk ? item.vVal : 0.01}" ${item.vOk ? 'disabled' : ''}></div>
+            <div class="field"><label>Descrição${item.sOk ? '' : ' '}</label><input type="text" data-rev="desc" data-idx="${item.idx}" value="${escapeHtml(item.sVal || '')}" ${item.sOk ? 'disabled' : ''}></div>
           </div>
         </div>
       </div>`;
@@ -321,9 +371,9 @@ function renderLinhasExcel() {
 
   if (linhasOk.length || linhasRev.length) {
     const total = linhasOk.length + linhasRev.length;
-    html += `<div style="font-size:0.78rem;color:var(--text-sub);margin:10px 0;">📋 <b>${total}</b> linha(s) serão processadas (${linhasOk.length} prontas, ${linhasRev.length} com revisão).</div>
+    html += `<div style="font-size:0.78rem;color:var(--text-sub);margin:10px 0;"> <b>${total}</b> linha(s) serão processadas (${linhasOk.length} prontas, ${linhasRev.length} com revisão).</div>
       <div id="imp-msg"></div>
-      <button class="btn btn-primary btn-block" id="imp-btn-importar">✦ Importar todos os lançamentos</button>`;
+      <button class="btn btn-primary btn-block" id="imp-btn-importar">Importar todos os lançamentos</button>`;
   }
 
   box.innerHTML = html;
@@ -352,10 +402,10 @@ async function importarLinhasExcel() {
     const tsBase = novoIdLancamento();
 
     linhasOk.forEach((item, i) => {
-      const [tipo, cls, icone] = classificarParaImportacao(item.desc, ehReceita);
+      const [tipo, cls] = classificarParaImportacao(item.desc, ehReceita);
       novos.push({
         id: tsBase + i, data: dataISO(item.data), valor: item.valor, descricao: item.desc,
-        categoria_extra: item.catExtra || '', forma_pagamento: forma, tipo, classe: cls, icone,
+        categoria_extra: item.catExtra || '', forma_pagamento: forma, tipo, classe: cls,
       });
     });
 
@@ -365,10 +415,10 @@ async function importarLinhasExcel() {
       const vFinal = item.vOk ? item.vVal : parseFloat(rev.valor);
       const sFinal = item.sOk ? item.sVal : (rev.desc || '').trim();
       if (dFinal && vFinal && vFinal > 0 && sFinal && sFinal.length >= 2) {
-        const [tipo, cls, icone] = classificarParaImportacao(sFinal, ehReceita);
+        const [tipo, cls] = classificarParaImportacao(sFinal, ehReceita);
         novos.push({
           id: tsBase + linhasOk.length + j, data: dFinal, valor: vFinal, descricao: sFinal,
-          categoria_extra: item.catExtra || '', forma_pagamento: forma, tipo, classe: cls, icone,
+          categoria_extra: item.catExtra || '', forma_pagamento: forma, tipo, classe: cls,
         });
       } else {
         erros++;
@@ -382,17 +432,17 @@ async function importarLinhasExcel() {
     }
 
     if (novos.length > 0 && erros === 0) {
-      msgBox.innerHTML = `<div class="alerta alerta-success">✅ Importação concluída! ${novos.length} lançamento(s) adicionado(s) ao histórico.</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-success">Importação concluída! ${novos.length} lançamento(s) adicionado(s) ao histórico.</div>`;
     } else if (novos.length > 0 && erros > 0) {
-      msgBox.innerHTML = `<div class="alerta alerta-warning">⚠️ Importação parcial: ${novos.length} importado(s), ${erros} linha(s) ignorada(s) por dados incompletos.</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-warning">Importação parcial: ${novos.length} importado(s), ${erros} linha(s) ignorada(s) por dados incompletos.</div>`;
     } else {
-      msgBox.innerHTML = `<div class="alerta alerta-error">❌ Nenhum lançamento importado. ${erros} linha(s) com dados incompletos.</div>`;
+      msgBox.innerHTML = `<div class="alerta alerta-error">Nenhum lançamento importado. ${erros} linha(s) com dados incompletos.</div>`;
     }
     qs('#imp-arquivo').value = '';
   } catch (e) {
     console.error(e);
-    msgBox.innerHTML = `<div class="alerta alerta-error">❌ Erro ao importar: ${escapeHtml(e.message)}</div>`;
+    msgBox.innerHTML = `<div class="alerta alerta-error">Erro ao importar: ${escapeHtml(e.message)}</div>`;
   } finally {
-    btn.disabled = false; btn.textContent = '✦ Importar todos os lançamentos';
+    btn.disabled = false; btn.textContent = 'Importar todos os lançamentos';
   }
 }

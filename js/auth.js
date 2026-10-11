@@ -48,9 +48,9 @@ async function fazerLogin() {
     if (!found) {
       mostrarMsg('#msg-login', 'error', 'Usuário ou senha incorretos.');
     } else if ((found.status || 'aprovado') === 'pendente') {
-      mostrarMsg('#msg-login', 'warning', '⏳ Sua conta foi criada, mas ainda aguarda a aprovação do Aldemir.');
+      mostrarMsg('#msg-login', 'warning', 'Sua conta foi criada, mas ainda aguarda a aprovação do Aldemir.');
     } else if (found.status === 'desativado') {
-      mostrarMsg('#msg-login', 'error', '🚫 Sua conta foi desativada. Entre em contato com o administrador.');
+      mostrarMsg('#msg-login', 'error', 'Sua conta foi desativada. Entre em contato com o administrador.');
     } else {
       STATE.loggedIn = true;
       STATE.username = found.usuario;
@@ -68,9 +68,9 @@ async function fazerLogin() {
     }
   } catch (e) {
     console.error(e);
-    mostrarMsg('#msg-login', 'error', `❌ Erro ao entrar: ${escapeHtml(e.message)}`);
+    mostrarMsg('#msg-login', 'error', `Erro ao entrar: ${escapeHtml(e.message)}`);
   } finally {
-    btn.disabled = false; btn.textContent = '✦ Entrar';
+    btn.disabled = false; btn.textContent = 'Entrar';
   }
 }
 
@@ -93,14 +93,14 @@ async function fazerRegistro() {
       mostrarMsg('#msg-registro', 'error', 'Esse usuário já existe.');
     } else {
       await criarUsuario(nu, p1);
-      mostrarMsg('#msg-registro', 'success', '✅ Conta solicitada com sucesso! Aguarde a aprovação do Aldemir.');
+      mostrarMsg('#msg-registro', 'success', 'Conta solicitada com sucesso! Aguarde a aprovação do Aldemir.');
       qs('#reg-usuario').value = ''; qs('#reg-senha1').value = ''; qs('#reg-senha2').value = '';
     }
   } catch (e) {
     console.error(e);
-    mostrarMsg('#msg-registro', 'error', `❌ Erro ao criar conta: ${escapeHtml(e.message)}`);
+    mostrarMsg('#msg-registro', 'error', `Erro ao criar conta: ${escapeHtml(e.message)}`);
   } finally {
-    btn.disabled = false; btn.textContent = '✦ Criar conta';
+    btn.disabled = false; btn.textContent = 'Criar conta';
   }
 }
 

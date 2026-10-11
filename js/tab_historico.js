@@ -12,8 +12,8 @@ function renderHistorico() {
     <div class="page-sub">Gerencie seus lançamentos e itens excluídos em um só lugar.</div>
 
     <div class="login-abas" style="max-width:420px;">
-      <button class="login-aba-btn ${HIST_SUBABA === 'ativos' ? 'active' : ''}" data-sub="ativos">📋 Lançamentos Ativos</button>
-      <button class="login-aba-btn ${HIST_SUBABA === 'apagados' ? 'active' : ''}" data-sub="apagados">🗑️ Apagados</button>
+      <button class="login-aba-btn ${HIST_SUBABA === 'ativos' ? 'active' : ''}" data-sub="ativos">Lançamentos Ativos</button>
+      <button class="login-aba-btn ${HIST_SUBABA === 'apagados' ? 'active' : ''}" data-sub="apagados">Apagados</button>
     </div>
     <div id="hist-corpo"></div>
   `;
@@ -40,7 +40,7 @@ function renderHistoricoAtivos() {
     <label><input type="radio" name="hist-filtro-tipo" value="${f}" ${HIST_FILTRO_TIPO === f ? 'checked' : ''}> ${f}</label>`).join('')}</div>`;
 
   if (catsExtraDisp.length) {
-    html += `<div class="field" style="max-width:280px;margin-bottom:14px;"><label>🏷️ Filtrar por Categoria</label>
+    html += `<div class="field" style="max-width:280px;margin-bottom:14px;"><label>Filtrar por Categoria</label>
       <select id="hist-filtro-cat-extra"><option value="Todas">Todas</option>${catsExtraDisp.map(c => `<option value="${escapeHtml(c)}" ${HIST_FILTRO_CAT_EXTRA === c ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>`;
   }
 
@@ -61,15 +61,16 @@ function renderListaLancamentosAtivos(lista) {
   for (const l of lista) {
     const sinal = l.tipo === 'Receita' ? '+' : '-';
     const cor = l.tipo === 'Receita' ? 'pos' : 'neg';
-    const catTag = l.categoria_extra ? ` · 🏷️ ${escapeHtml(l.categoria_extra)}` : '';
+    const catTag = l.categoria_extra ? ` ·  ${escapeHtml(l.categoria_extra)}` : '';
+    const parcelaTag = l.total_parcelas ? ` · Parcela ${l.parcela_numero}/${l.total_parcelas}` : '';
     html += `<div class="lanc-item">
       <div class="lanc-card">
-        <div class="meta">${fmtDataBR(l.data)} · ${badgeTipo(l.tipo)} ${badgeClasse(l.classe)} ${badgePagamento(l.forma_pagamento)}${catTag}</div>
-        <div class="desc">${l.icone} ${escapeHtml(l.descricao)}</div>
+        <div class="meta">${fmtDataBR(l.data)} · ${badgeTipo(l.tipo)} ${badgeClasse(l.classe)} ${badgePagamento(l.forma_pagamento)}${catTag}${parcelaTag}</div>
+        <div class="desc">${escapeHtml(l.descricao)}</div>
       </div>
       <div class="lanc-valor ${cor}">${sinal} ${fmtBRL(l.valor)}</div>
-      <button class="btn btn-sm" data-edit="${l.id}" title="Editar">✏️</button>
-      <button class="btn btn-sm btn-danger" data-del="${l.id}" title="Mover para Apagados">🗑</button>
+      <button class="btn btn-sm" data-edit="${l.id}" title="Editar">Editar</button>
+      <button class="btn btn-sm btn-danger" data-del="${l.id}" title="Mover para Apagados">Apagar</button>
     </div>
     <div id="hist-edit-${l.id}"></div>`;
   }
@@ -113,24 +114,24 @@ function renderFormEdicaoLancamento(id) {
   if (!categoriasOpts.includes(l.classe)) categoriasOpts = [...new Set([...categoriasOpts, l.classe])].sort();
 
   box.innerHTML = `
-    <div class="section-title">✏️ Editando lançamento</div>
+    <div class="section-title">Editando lançamento</div>
     <div class="form-row cols-2">
-      <div class="field"><label>📅 Data</label><input type="date" id="ed-data-${id}" value="${l.data}"></div>
-      <div class="field"><label>💰 Valor</label><input type="number" id="ed-valor-${id}" min="0.01" step="0.01" value="${l.valor}"></div>
+      <div class="field"><label>Data</label><input type="date" id="ed-data-${id}" value="${l.data}"></div>
+      <div class="field"><label>Valor</label><input type="number" id="ed-valor-${id}" min="0.01" step="0.01" value="${l.valor}"></div>
     </div>
     <div class="form-row cols-2">
-      <div class="field"><label>💳 Forma de Pagamento</label><select id="ed-forma-${id}">${FORMAS_PAGAMENTO.map(f => `<option value="${f}" ${l.forma_pagamento === f ? 'selected' : ''}>${f}</option>`).join('')}</select></div>
+      <div class="field"><label>Forma de Pagamento</label><select id="ed-forma-${id}">${FORMAS_PAGAMENTO.map(f => `<option value="${f}" ${l.forma_pagamento === f ? 'selected' : ''}>${f}</option>`).join('')}</select></div>
       <div class="field"><label>Tipo</label><select id="ed-tipo-${id}">${tiposEditOpts.map(t => `<option value="${t}" ${t === tipoAtual ? 'selected' : ''}>${t}</option>`).join('')}</select></div>
     </div>
     <div class="form-row cols-2">
-      <div class="field"><label>🏷️ Categoria</label><select id="ed-categoria-${id}">${categoriasOpts.map(c => `<option value="${escapeHtml(c)}" ${c === l.classe ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
-      <div class="field"><label>📝 Descrição</label><select id="ed-descricao-${id}"></select></div>
+      <div class="field"><label>Categoria</label><select id="ed-categoria-${id}">${categoriasOpts.map(c => `<option value="${escapeHtml(c)}" ${c === l.classe ? 'selected' : ''}>${escapeHtml(c)}</option>`).join('')}</select></div>
+      <div class="field"><label>Descrição</label><select id="ed-descricao-${id}"></select></div>
     </div>
-    <div class="field"><label>🏷️ Categoria (opcional)</label><input type="text" id="ed-catextra-${id}" placeholder="Ex: Moto, Carro, Casa..." value="${escapeHtml(l.categoria_extra || '')}"></div>
+    <div class="field"><label>Categoria (opcional)</label><input type="text" id="ed-catextra-${id}" placeholder="Ex: Moto, Carro, Casa..." value="${escapeHtml(l.categoria_extra || '')}"></div>
     <div id="ed-msg-${id}"></div>
     <div class="form-row cols-2">
-      <button class="btn btn-primary" id="ed-salvar-${id}">💾 Salvar alterações</button>
-      <button class="btn" id="ed-cancelar-${id}">✕ Cancelar</button>
+      <button class="btn btn-primary" id="ed-salvar-${id}">Salvar alterações</button>
+      <button class="btn" id="ed-cancelar-${id}">Cancelar</button>
     </div>
   `;
 
@@ -158,15 +159,14 @@ function renderFormEdicaoLancamento(id) {
         classe: qs(`#ed-categoria-${id}`).value,
         categoria_extra: qs(`#ed-catextra-${id}`).value.trim(),
         forma_pagamento: qs(`#ed-forma-${id}`).value,
-        icone: tipoNovo === 'Receita' ? '💵' : '💸',
       };
       await atualizarLancamento(id, STATE.username, campos);
       Object.assign(l, campos);
       STATE.editandoLancId = null;
       renderHistoricoAtivos();
     } catch (e) {
-      qs(`#ed-msg-${id}`).innerHTML = `<div class="alerta alerta-error">❌ Erro ao salvar: ${escapeHtml(e.message)}</div>`;
-      btn.disabled = false; btn.textContent = '💾 Salvar alterações';
+      qs(`#ed-msg-${id}`).innerHTML = `<div class="alerta alerta-error">Erro ao salvar: ${escapeHtml(e.message)}</div>`;
+      btn.disabled = false; btn.textContent = 'Salvar alterações';
     }
   });
 }
@@ -175,7 +175,7 @@ function renderHistoricoApagados() {
   const box = qs('#hist-corpo');
   const lixeira = STATE.lixeira;
   let html = `<div class="caption">Itens excluídos do histórico. Restaure ou exclua definitivamente.</div>
-    <div class="alerta alerta-warning">⏳ Itens ficam disponíveis por <b>30 dias</b> após a exclusão. Após esse prazo são removidos automaticamente.</div>`;
+    <div class="alerta alerta-warning">Itens ficam disponíveis por <b>30 dias</b> após a exclusão. Após esse prazo são removidos automaticamente.</div>`;
 
   if (!lixeira.length) {
     html += `<div class="alerta alerta-info">Nenhum item apagado.</div>`;
@@ -195,17 +195,18 @@ function renderHistoricoApagados() {
       diasRestantes = Math.max(0, 30 - Math.floor((agoraBr() - apagadoEm) / 86400000));
     } catch (e) { /* mantém 30 */ }
     const corDias = diasRestantes <= 3 ? '#c0392b' : (diasRestantes <= 7 ? '#d97706' : 'var(--text-sub)');
+    const parcelaTag = l.total_parcelas ? ` · Parcela ${l.parcela_numero}/${l.total_parcelas}` : '';
     itensHtml += `<div class="lanc-item">
       <div class="lixeira-card">
-        <div class="meta" style="color:#c0392b;">${fmtDataBR(l.data)} · ${badgeTipo(l.tipo)} ${badgeClasse(l.classe)}</div>
-        <div class="desc" style="color:#7b241c;">${l.icone} ${escapeHtml(l.descricao)}</div>
+        <div class="meta" style="color:#c0392b;">${fmtDataBR(l.data)} · ${badgeTipo(l.tipo)} ${badgeClasse(l.classe)}${parcelaTag}</div>
+        <div class="desc" style="color:#7b241c;">${escapeHtml(l.descricao)}</div>
       </div>
       <div class="lanc-valor neg">– ${fmtBRL(l.valor)}</div>
       <div>
-        <div class="dias-restantes" style="color:${corDias};">🗓 ${diasRestantes}d</div>
-        <button class="btn btn-sm" data-rest="${l.id}" title="Restaurar">↩️</button>
+        <div class="dias-restantes" style="color:${corDias};"> ${diasRestantes}d</div>
+        <button class="btn btn-sm" data-rest="${l.id}" title="Restaurar">Restaurar</button>
       </div>
-      <button class="btn btn-sm btn-danger" data-perm="${l.id}" title="Excluir permanentemente">✕</button>
+      <button class="btn btn-sm btn-danger" data-perm="${l.id}" title="Excluir permanentemente">Excluir</button>
     </div>`;
   }
   itensBox.innerHTML = itensHtml;
